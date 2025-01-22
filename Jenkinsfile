@@ -1,64 +1,19 @@
 @Library('my-shared-library') _
 
 pipeline {
+
     agent any
 
     parameters {
+
         choice(name: 'action', choices: 'create\ndelete', description: 'Choose create/Destroy')
-        string(name: 'ImageName', description: "name of the docker build", defaultValue: 'javapp')
-        string(name: 'ImageTag', description: "tag of the docker build", defaultValue: 'v1')
-        string(name: 'DockerHubUser', description: "name of the Application", defaultValue: 'HarisAmjad158')
+        string(name: 'ImageName', description: "Name of the Docker build", defaultValue: 'javapp')
+        string(name: 'ImageTag', description: "Tag of the Docker build", defaultValue: 'v1')
+        string(name: 'DockerHubUser', description: "Name of the Application", defaultValue: 'harisamjad0158')
     }
 
     stages {
-        stage('Create Jenkins Node with WebSocket') {
-            when { expression { params.action == 'create' } }
-            steps {
-                script {
-                    def nodeConfig = """
-                    import jenkins.model.*
-                    import hudson.model.*
-                    import hudson.slaves.*
-                    import jenkins.slaves.*
-                    import jenkins.slaves.RemotingWorkDirSettings
 
-                    def instance = Jenkins.getInstance()
-
-                    def nodeName = "new-node"
-                    def nodeDescription = "This is a new node"
-                    def remoteFS = "/home/jenkins"
-                    def numExecutors = 2
-                    def nodeMode = Node.Mode.NORMAL
-                    def labelString = "agent"
-                    def launcher = new JNLPLauncher(null, null)
-                    launcher.setWebSocket(true)  // Enable WebSocket
-                    def retentionStrategy = new RetentionStrategy.Always()
-
-                    // WorkDirSettings to disable work directory
-                    def workDirSettings = new RemotingWorkDirSettings.WorkDirSettings(null, true, null)
-
-                    def node = new DumbSlave(
-                        nodeName,
-                        nodeDescription,
-                        remoteFS,
-                        numExecutors,
-                        nodeMode,
-                        labelString,
-                        launcher,
-                        retentionStrategy,
-                        new LinkedList()
-                    )
-
-                    node.setWorkDirSettings(workDirSettings)
-
-                    instance.addNode(node)
-                    """
-
-                    // Execute the node configuration
-                    evaluate(nodeConfig)
-                }
-            }
-        }
         stage('Git Checkout') {
             when { expression { params.action == 'create' } }
             steps {
@@ -93,7 +48,7 @@ pipeline {
                 }
             }
         }
-        stage('Quality Gate Status Check: Sonarqube') {
+        stage('Quality Gate Status Check : Sonarqube') {
             when { expression { params.action == 'create' } }
             steps {
                 script {
@@ -102,7 +57,7 @@ pipeline {
                 }
             }
         }
-        stage('Maven Build: maven') {
+        stage('Maven Build : maven') {
             when { expression { params.action == 'create' } }
             steps {
                 script {
@@ -126,7 +81,7 @@ pipeline {
                 }
             }
         }
-        stage('Docker Image Push: DockerHub') {
+        stage('Docker Image Push : DockerHub') {
             when { expression { params.action == 'create' } }
             steps {
                 script {
@@ -134,7 +89,7 @@ pipeline {
                 }
             }
         }
-        stage('Docker Image Cleanup: DockerHub') {
+        stage('Docker Image Cleanup : DockerHub') {
             when { expression { params.action == 'create' } }
             steps {
                 script {
