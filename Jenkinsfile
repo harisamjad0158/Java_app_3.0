@@ -23,6 +23,7 @@ pipeline {
                 )
             }
         }
+
         stage('Unit Test maven') {
             when { expression { params.action == 'create' } }
             steps {
@@ -31,6 +32,7 @@ pipeline {
                 }
             }
         }
+
         stage('Integration Test maven') {
             when { expression { params.action == 'create' } }
             steps {
@@ -39,6 +41,7 @@ pipeline {
                 }
             }
         }
+
         stage('Static code analysis: Sonarqube') {
             when { expression { params.action == 'create' } }
             steps {
@@ -48,6 +51,7 @@ pipeline {
                 }
             }
         }
+
         stage('Quality Gate Status Check : Sonarqube') {
             when { expression { params.action == 'create' } }
             steps {
@@ -57,6 +61,7 @@ pipeline {
                 }
             }
         }
+
         stage('Maven Build : maven') {
             when { expression { params.action == 'create' } }
             steps {
@@ -65,6 +70,7 @@ pipeline {
                 }
             }
         }
+
         stage('Docker Image Build') {
             when { expression { params.action == 'create' } }
             steps {
@@ -73,6 +79,7 @@ pipeline {
                 }
             }
         }
+
         stage('Docker Image Scan: trivy') {
             when { expression { params.action == 'create' } }
             steps {
@@ -81,13 +88,16 @@ pipeline {
                 }
             }
         }
-        stage('pushing JFROG Pipe/Upload Artifact') {
+
+        stage('Pushing JFROG Pipe/Upload Artifact') {
             when { expression { params.action == 'create' } }
             steps {
                 script {
                     sh '''
-                        curl -X PUT -u admin:Admin1234567* \  -T /opt/Java_app_3.0/target/kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar \ "http://52.23.249.231:8082/artifactory/example-repo-local/kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar"
-                        '''
+                    curl -X PUT -u admin:Admin1234567* \
+                        -T /opt/Java_app_3.0/target/kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar \
+                        "http://52.23.249.231:8082/artifactory/example-repo-local/kubernetes-configmap-reload-0.0.1-SNAPSHOT.jar"
+                    '''
                 }
             }
         }
@@ -100,6 +110,7 @@ pipeline {
                 }
             }
         }
+
         stage('Docker Image Cleanup : DockerHub') {
             when { expression { params.action == 'create' } }
             steps {
